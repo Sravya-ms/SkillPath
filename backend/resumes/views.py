@@ -5,13 +5,13 @@ from django.views.decorators.http import require_POST
 from careers.skills import extract_skills
 from .models import ResumeVersion
 
-MAX_BYTES = 5 * 1024 * 1024
+MAX_BYTES = 4 * 1024 * 1024  # Vercel limits request bodies to about 4.5 MB
 
 
 def check_file(f):
     name = f.name.lower()
     if f.size > MAX_BYTES:
-        return 'That file is larger than 5 MB.'
+        return 'That file is larger than 4 MB.'
     head = f.read(4)
     f.seek(0)
     if (name.endswith('.pdf') and head == b'%PDF') or (name.endswith('.docx') and head[:2] == b'PK'):
@@ -43,7 +43,8 @@ def upload(request):
             rv.status, rv.skills = 'complete', skills
         except Exception:
             rv.status = 'failed'
-        rv.file = f
+        f.seek(0)
+        rv.file_data = f.read()
         rv.save()
         if rv.status == 'failed':
             messages.error(request, 'We could not read that file. Try another copy, or add your skills by hand.')
@@ -67,7 +68,6 @@ def review(request, pk):
 @require_POST
 def delete(request, pk):
     rv = get_object_or_404(ResumeVersion, pk=pk, user=request.user)
-    rv.file.delete(save=False)
     rv.delete()
     messages.success(request, 'Resume version deleted.')
     return redirect('history')

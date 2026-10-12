@@ -10,6 +10,12 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-only-insecure-key-change-me')
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = [h for h in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if h]
 CSRF_TRUSTED_ORIGINS = [o for o in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if o]
+ON_VERCEL = bool(os.environ.get('VERCEL'))
+if ON_VERCEL:  # Vercel sets VERCEL=1 automatically
+    ALLOWED_HOSTS += ['.vercel.app']
+    CSRF_TRUSTED_ORIGINS += ['https://*.vercel.app']
+if not DEBUG and SECRET_KEY.startswith('dev-only'):
+    raise RuntimeError('Set a real SECRET_KEY in the environment when DEBUG is False.')
 
 INSTALLED_APPS = [
     'django.contrib.admin', 'django.contrib.auth', 'django.contrib.contenttypes',
@@ -38,7 +44,10 @@ TEMPLATES = [{
 }]
 WSGI_APPLICATION = 'config.wsgi.application'
 # Local default = SQLite (zero setup). Set DATABASE_URL for Postgres/MySQL.
-DATABASES = {'default': dj_database_url.config(default=f'sqlite:///{BASE_DIR / "db.sqlite3"}', conn_max_age=600)}
+if ON_VERCEL and not os.environ.get('DATABASE_URL'):
+    raise RuntimeError('DATABASE_URL is not set. Vercel needs a hosted PostgreSQL database (SQLite cannot work there).')
+# Serverless functions should not keep connections open between requests (conn_max_age=0).
+DATABASES = {'default': dj_database_url.config(default=f'sqlite:///{BASE_DIR / "db.sqlite3"}', conn_max_age=0 if ON_VERCEL else 600)}
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -53,10 +62,10 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STORAGES = {
     'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
-    'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage'},
+    # Vercel runs collectstatic during the build and serves /static/ from its CDN.
+    'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
 }
-# Resumes are NEVER served publicly: there is no MEDIA_URL route.
-MEDIA_ROOT = BASE_DIR / 'media'
+# Resumes are stored in the database and are never served publicly (no MEDIA_URL).
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
@@ -68,3 +77,4 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 3600

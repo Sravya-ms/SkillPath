@@ -34,7 +34,7 @@ class ExamAndPrivacyTests(TestCase):
         self.assertEqual(ExamAttempt.objects.latest('taken_at').attempt_no, 2)
 
     def test_other_user_cannot_open_resume(self):
-        rv = ResumeVersion.objects.create(user=self.a, file=SimpleUploadedFile('r.pdf', b'%PDF-x'), file_name='r.pdf')
+        rv = ResumeVersion.objects.create(user=self.a, file_data=b'%PDF-x', file_name='r.pdf')
         self.client.login(username='b', password='pw12345!x')
         self.assertEqual(self.client.get(f'/resumes/{rv.pk}/review/').status_code, 404)
         self.assertEqual(self.client.get(f'/careers/results/{rv.pk}/').status_code, 404)
