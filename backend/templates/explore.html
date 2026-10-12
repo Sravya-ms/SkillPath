@@ -1,0 +1,12 @@
+{% extends 'base.html' %}{% block content %}<h2>Explore roles</h2>
+<p class="mute">{{ roles|length }} role{{ roles|length|pluralize }}{% if goal %} &middot; your goal: <b>{{ goal }}</b>{% endif %}. {% if rv %}Sorted by estimated fit with <span class="mono">{{ rv.file_name }}</span>.{% else %}<a href="{% url 'upload' %}">Upload a resume</a> to see your fit for each role.{% endif %}</p>
+<form method="get" class="row"><input name="q" value="{{ q }}" placeholder="Search roles, e.g. cloud, AI, design" style="max-width:320px">
+{% if resumes %}<select name="resume" style="max-width:260px">{% for r in resumes %}<option value="{{ r.pk }}" {% if rv and r.pk == rv.pk %}selected{% endif %}>{{ r }}</option>{% endfor %}</select>{% endif %}
+{% if cat %}<input type="hidden" name="cat" value="{{ cat }}">{% endif %}<button class="btn sm">Search</button></form>
+<div class="filters"><a class="{% if not cat %}on{% endif %}" href="?">All</a><a class="{% if cat == 'new' %}on{% endif %}" href="?cat=new">&#9733; New &amp; emerging</a>
+{% for c in categories %}<a class="{% if cat == c %}on{% endif %}" href="?cat={{ c|urlencode }}">{{ c }}</a>{% endfor %}</div>
+<div class="grid">{% for r in roles %}<div class="card"><div class="row between"><b>{{ r.c.title }}{% if r.new %}<span class="badge">NEW</span>{% endif %}</b>{% if r.score is not None %}<span class="mono">~{{ r.score }}%</span>{% endif %}</div>
+<p class="mute small">{{ r.category }}</p><p class="mute">{{ r.c.description }}</p>
+{% if r.score is not None %}<div class="bar"><i style="width:{{ r.score }}%"></i></div><p class="small">{% for s in r.missing %}<span class="chip miss">{{ s }}</span>{% endfor %}</p>{% endif %}
+<div class="row"><a class="btn sm" href="{% url 'career_detail' r.c.slug %}{% if rv %}?resume={{ rv.pk }}{% endif %}">Open trail</a>
+<form method="post" action="{% url 'set_goal' r.c.slug %}">{% csrf_token %}<button class="btn ghost sm">Set as goal</button></form></div></div>{% empty %}<p class="mute">No roles match. Try another word or field.</p>{% endfor %}</div>{% endblock %}

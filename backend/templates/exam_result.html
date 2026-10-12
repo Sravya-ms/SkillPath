@@ -1,0 +1,6 @@
+{% extends 'base.html' %}{% block content %}<h2>{% if passed %}Pass - flag planted!{% else %}Not yet passed{% endif %}</h2>
+<div class="row"><div class="dial {% if passed %}pass{% else %}fail{% endif %}" style="--p:{{ score }}"><i></i><b>{{ score }}%</b></div>
+<div><p class="mono">{{ right }} / {{ total }} correct &middot; attempt {{ attempt }}</p><p class="mute">The blue tick marks the 75% pass line.</p></div></div>
+{% if not passed %}<div class="card"><b>Review "{{ topic.title }}"</b><p class="mute">Revisit the topic, then retake - questions and answer order are shuffled each time.</p>
+<a class="btn ghost sm" target="_blank" rel="noopener" href="{{ topic.youtube_url }}">Search on YouTube</a> <a class="btn sm" href="{% url 'exam' topic.pk %}">Retake</a></div>
+{% else %}<a class="btn moss" href="{% url 'dashboard' %}">Back to dashboard</a>{% endif %}{% endblock %}

@@ -1,0 +1,9 @@
+{% extends 'base.html' %}{% load static %}{% block content %}<h2>Hello, {{ user.username }}</h2>
+{% for s in reminders %}<div class="msg warning">Reminder: {{ s.topic|default:"Study session" }} starts at {{ s.start|time:"g:i A" }}.</div>{% endfor %}
+<div class="card row between"><span>Goal role: <b>{{ goal|default:"not chosen yet" }}</b></span><a class="btn ghost sm" href="{% url 'explore' %}">Explore roles</a></div>
+<div class="grid"><div class="card row"><div class="dial" style="--p:{{ readiness }}"><b>{{ readiness }}%</b></div><div><b>Readiness</b><p class="mute small">{{ passed }} of {{ total }} topics passed<br>{{ streak }} study day{{ streak|pluralize }}</p></div></div>
+<div class="card"><b>Latest resume</b>{% if latest %}<p class="mono small">{{ latest.file_name }}</p><a class="btn sm" href="{% url 'results' latest.pk %}">See top 5</a>{% else %}<p class="mute">None yet.</p><a class="btn sm" href="{% url 'upload' %}">Upload</a>{% endif %}</div>
+<div class="card"><b>Today</b>{% for s,st in today %}<p>{{ s.start|time:"H:i" }} {{ s.topic|default:"Study" }} <span class="chip hit">{{ st }}</span></p>{% empty %}<p class="mute">Nothing planned. <a href="{% url 'planner' %}">Plan a session</a></p>{% endfor %}</div></div>
+<div class="card"><b>Recent exam scores</b><canvas id="scores" height="90"></canvas>{{ chart|json_script:"chart-data" }}</div>
+<div class="card"><b>Recent job checks</b>{% for j in jobs %}<p><a href="{% url 'job_result' j.pk %}">{{ j.title|default:"Job" }}</a> <span class="mono">{{ j.score }}%</span> <span class="chip hit">{{ j.get_status_display }}</span></p>{% empty %}<p class="mute">None yet.</p>{% endfor %}</div>{% endblock %}
+{% block js %}<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script><script src="{% static 'js/app.js' %}"></script>{% endblock %}

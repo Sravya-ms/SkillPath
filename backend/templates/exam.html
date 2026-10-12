@@ -1,0 +1,5 @@
+{% extends 'base.html' %}{% block content %}<h2>{{ topic.title }} exam</h2>
+<p class="mute">{{ items|length }} question{{ items|length|pluralize }} &middot; untimed &middot; 75% or more to pass &middot; graded on the server.</p>
+<form method="post">{% csrf_token %}{% for it in items %}<div class="card"><b>{{ forloop.counter }}. {{ it.q.text }}</b>
+{% for i,txt in it.opts %}<label class="opt"><input type="radio" name="q{{ it.q.pk }}" value="{{ i }}">{{ txt }}</label>{% endfor %}</div>{% endfor %}
+<button class="btn">Submit answers</button></form>{% endblock %}

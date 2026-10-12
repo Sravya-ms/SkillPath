@@ -1,0 +1,10 @@
+{% extends 'base.html' %}{% block content %}<h2>Study planner</h2>
+{% for s in reminders %}<div class="msg warning">Reminder: {{ s.topic|default:"Study session" }} starts at {{ s.start|time:"g:i A" }}.</div>{% endfor %}
+<div class="grid"><div class="card"><b>Add a session</b><form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn">Save session</button></form></div>
+<div class="card"><b>Today</b>{% for s,st in today %}<div class="row between"><span>{{ s.topic|default:"Study" }} <span class="mono small">{{ s.start|time:"H:i" }}-{{ s.end|time:"H:i" }}</span> <span class="chip hit">{{ st }}</span></span>
+<form method="post" action="{% url 'session_action' s.pk 'done' %}">{% csrf_token %}<button class="btn moss sm">Done</button></form>
+<form method="post" action="{% url 'session_action' s.pk 'missed' %}">{% csrf_token %}<button class="btn ghost sm">Missed</button></form></div>{% empty %}<p class="mute">Nothing planned today.</p>{% endfor %}</div></div>
+<h3>This week</h3><div class="week">{% for d in week %}<div class="day {% if d.is_today %}today{% endif %}"><b>{{ d.date|date:"D j" }}</b>{% for s,st in d.items %}<div>{{ s.start|time:"H:i" }} {{ s.topic|default:"Study" }} <span class="mute">({{ st }})</span></div>{% endfor %}</div>{% endfor %}</div>
+<h3>All sessions</h3>{% for s in sessions %}<div class="card row between"><span>{{ s.topic|default:"Study" }} &middot; {{ s.date }} {{ s.start|time:"H:i" }}-{{ s.end|time:"H:i" }} &middot; {{ s.get_repeat_display }}{% if s.paused %} (paused){% endif %}</span>
+<span class="row"><form method="post" action="{% url 'session_action' s.pk 'pause' %}">{% csrf_token %}<button class="btn ghost sm">{% if s.paused %}Resume{% else %}Pause{% endif %}</button></form>
+<form method="post" action="{% url 'session_action' s.pk 'delete' %}" onsubmit="return confirm('Delete this session and its repeats?')">{% csrf_token %}<button class="btn ghost sm">Delete</button></form></span></div>{% endfor %}{% endblock %}

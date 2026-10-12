@@ -1,0 +1,6 @@
+{% extends 'base.html' %}{% block content %}<h2>Check a job</h2>
+{% if not resumes %}<div class="card">Upload a resume first. <a class="btn sm" href="{% url 'upload' %}">Upload</a></div>{% else %}
+<form method="post" class="card">{% csrf_token %}<label>Resume version</label><select name="resume">{% for r in resumes %}<option value="{{ r.pk }}">{{ r }}</option>{% endfor %}</select>
+<label>Job link</label><input type="url" name="url" value="{{ url }}" placeholder="https://...">
+<label>Or paste the job description{% if need_paste %} (needed - the page could not be read){% endif %}</label><textarea name="pasted" rows="{% if need_paste %}10{% else %}4{% endif %}">{{ pasted }}</textarea>
+<label>Job title (optional)</label><input name="title"><button class="btn">Analyze job</button></form>{% endif %}{% endblock %}

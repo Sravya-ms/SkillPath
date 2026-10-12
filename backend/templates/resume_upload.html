@@ -1,0 +1,5 @@
+{% extends 'base.html' %}{% block content %}<h2>Upload your resume</h2>
+<form id="upload-form" method="post" enctype="multipart/form-data">{% csrf_token %}
+<div class="drop" id="drop"><p>PDF or DOCX, up to 5 MB. Each upload is saved as its own version.</p>
+<input type="file" name="resume" accept=".pdf,.docx" required><button class="btn">Scan resume</button></div></form>
+<p class="mute small">Your file is stored privately and only you can open it. Resume text is not logged.</p>{% endblock %}

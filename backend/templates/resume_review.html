@@ -1,0 +1,5 @@
+{% extends 'base.html' %}{% block content %}<h2>Check your skills</h2>
+<p class="mute">From <span class="mono">{{ rv.file_name }}</span>. Click a skill to remove it, or add ones we missed. Corrected skills give a fairer estimate.</p>
+<div class="card"><div id="chips"></div>
+<div class="row"><input id="chip-new" placeholder="add a skill, e.g. react" style="max-width:260px"><button type="button" id="chip-add" class="btn ghost sm">Add</button></div>
+<form method="post">{% csrf_token %}<input type="hidden" id="skills-input" name="skills" value="{{ skills_csv }}"><button class="btn moss">Find my top 5 careers</button></form></div>{% endblock %}

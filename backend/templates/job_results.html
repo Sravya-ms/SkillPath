@@ -1,0 +1,10 @@
+{% extends 'base.html' %}{% block content %}<h2>{{ job.title|default:"Job match" }}</h2>
+<div class="row"><div class="dial" style="--p:{{ job.score }}"><b>{{ job.score }}%</b></div><div><p class="mono">Estimated job match</p><p class="mute small">Matched skills / skills found in the job text, equal weight. Missing evidence in a resume does not prove you lack a skill.</p><span class="chip hit">{{ job.get_status_display }}</span></div></div>
+<div class="grid"><div class="card"><b>Matched</b><br>{% for s in job.matched %}<span class="chip hit">{{ s }}</span>{% empty %}<span class="mute">None yet</span>{% endfor %}</div>
+<div class="card"><b>Missing</b><br>{% for s in job.missing %}<span class="chip miss">{{ s }}</span>{% empty %}<span class="mute">None - nice!</span>{% endfor %}</div></div>
+{% if job.unclear %}<div class="card"><b>Needs confirmation</b>{% for u in job.unclear %}<p class="mute">{{ u }}</p>{% endfor %}</div>{% endif %}
+{% if job.status == 'suggested' or job.status == 'declined' %}<div class="card"><b>Shall we proceed?</b><p class="mute">Accept adds an ordered learning plan to your tracker. Decline keeps this analysis in history only.</p>
+<form method="post" action="{% url 'job_decide' job.pk %}" class="row">{% csrf_token %}<button name="choice" value="accept" class="btn moss">Accept</button><button name="choice" value="decline" class="btn ghost">Decline</button></form></div>
+{% else %}<h3>Your plan</h3>{% for t in tasks %}<div class="card row between"><span>{{ forloop.counter }}. Learn <b>{{ t.skill }}</b></span><span class="row">
+{% if t.topic %}<a class="btn ghost sm" target="_blank" rel="noopener" href="{{ t.topic.youtube_url }}">Resource</a>{% if t.topic.questions.exists %}<a class="btn sm" href="{% url 'exam' t.topic.pk %}">Exam</a>{% endif %}{% endif %}
+<form method="post" action="{% url 'task_toggle' t.pk %}">{% csrf_token %}<button class="btn {% if t.done %}moss{% else %}ghost{% endif %} sm">{% if t.done %}Done{% else %}Mark done{% endif %}</button></form></span></div>{% empty %}<p class="mute">No missing skills - nothing to learn.</p>{% endfor %}{% endif %}{% endblock %}

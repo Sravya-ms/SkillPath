@@ -1,0 +1,7 @@
+{% extends 'base.html' %}{% block content %}<h2>Your five peaks</h2>
+<p class="mute">Taller peak = higher estimated match. Score = matched skill weight / total required weight.</p>
+{% if few %}<div class="msg warning">Only a few skills were found. <a href="{% url 'review' rv.pk %}">Confirm or add skills</a> for a more reliable estimate.</div>{% endif %}
+<div class="peaks">{% for r in results %}<a class="peak" style="--h:{{ r.score }}%" href="#c{{ forloop.counter }}">{{ r.score }}%</a>{% endfor %}</div>
+{% for r in results %}<div class="card" id="c{{ forloop.counter }}"><div class="row between"><div><span class="rank">#{{ forloop.counter }}</span> <b>{{ r.career.title }}</b> <span class="mono">~{{ r.score }}% (estimated)</span></div>
+<a class="btn sm" href="{% url 'career_detail' r.career.slug %}?resume={{ rv.pk }}">Open trail</a></div>
+<p class="mute">{{ r.reason }}</p>{% for s in r.missing|slice:":4" %}<span class="chip miss">{{ s }}</span>{% endfor %}</div>{% empty %}<p>No careers are set up yet. Run <code>python manage.py seed</code>.</p>{% endfor %}<a class="btn ghost" href="{% url 'explore' %}?resume={{ rv.pk }}">Explore all roles &amp; pick your goal</a>{% endblock %}

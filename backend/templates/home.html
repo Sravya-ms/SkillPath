@@ -1,0 +1,6 @@
+{% extends 'base.html' %}{% block content %}
+<section class="hero"><p class="mono" style="color:var(--moss)">YOUR CAREER IS A MOUNTAIN</p>
+<h1>Find your summit.<br>Climb it <em>one checkpoint</em> at a time.</h1>
+<p class="mute" style="max-width:560px">Upload a resume, see your five best-fit careers as peaks, follow an ordered trail of topics, pass exams at 75%, and check any job against your skills.</p>
+<a class="btn" href="{% url 'register' %}">Start the climb</a> <a class="btn ghost" href="{% url 'login' %}">I have an account</a>
+<div class="mountains"></div></section>{% endblock %}

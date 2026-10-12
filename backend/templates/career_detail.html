@@ -1,0 +1,11 @@
+{% extends 'base.html' %}{% block content %}<h2>{{ career.title }}</h2><p class="mute">{{ career.description }}</p>
+<form method="post" action="{% url 'set_goal' career.slug %}">{% csrf_token %}<button class="btn moss sm">Make this my goal role</button></form>
+<div class="row"><div class="dial" style="--p:{{ progress }}"><b>{{ progress }}%</b></div><span class="mute">topics passed on this trail</span></div>
+{% if skills %}<div class="card"><b>Skills for this role</b><br>{% for s,hit in skills %}<span class="chip {% if hit %}hit{% else %}miss{% endif %}">{{ s }}</span>{% endfor %}</div>{% endif %}
+<ol class="trail">{% for r in rows %}<li class="node {{ r.state }}"><span class="dot"></span><div class="card">
+<div class="row between"><b>{{ forloop.counter }}. {{ r.t.title }}</b><span class="mono small">{{ r.state }}</span></div>
+<p class="mute">{{ r.t.description }}</p>
+{% if r.prev_missing %}<p class="small" style="color:var(--ember)">Recommended first: pass "{{ r.prev_missing }}".</p>{% endif %}
+<a class="btn ghost sm" target="_blank" rel="noopener" href="{{ r.t.youtube_url }}">Search on YouTube</a>
+{% if r.has_exam %}<a class="btn sm" href="{% url 'exam' r.t.pk %}">Take exam</a>{% else %}<span class="mute small">Exam coming soon</span>{% endif %}
+</div></li>{% endfor %}</ol>{% endblock %}
